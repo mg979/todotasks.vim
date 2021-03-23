@@ -6,13 +6,15 @@ runtime! syntax/markdown.vim
 
 set shiftwidth=2 tabstop=2 softtabstop=2 expandtab
 
-inoremap <buffer> <C-\><C-\> ☐<space>
-nnoremap <buffer> \n         o☐<space>
-nnoremap <buffer> gh         :call <SID>task_due()<cr>
-nnoremap <buffer> gd         :call <SID>toggle_task_done()<CR>
-nnoremap <buffer> gx         :call <SID>toggle_task_canceled()<CR>
-nnoremap <buffer><expr> o    getline('.') =~ ':$' ? "o\t☐ " : getline('.') =~ '\v^\s*%(✘\|✔\|☐)' ? 'o☐ ' : 'o'
-inoremap <buffer><expr> <cr> getline('.') =~ ':$' ? "\r\t☐ " : getline('.') =~ '\v^\s*%(✘\|✔\|☐)' ? "\r☐ " : "\r"
+set commentstring=;%s
+
+inoremap <buffer> <C-\><C-\> ☐<space><space>
+nnoremap <buffer> ,n         o☐<space><space>
+nnoremap <buffer> ,w         :call <SID>task_due()<cr>
+nnoremap <buffer> ,d         :call <SID>toggle_task_done()<CR>
+nnoremap <buffer> ,c         :call <SID>toggle_task_canceled()<CR>
+nnoremap <buffer><expr> o    getline('.') =~ ':$' ? "o\t☐ " : getline('.') =~ '\v^\s*%(✘\|✔\|☐)' ? 'o☐  ' : 'o'
+inoremap <buffer><expr> <cr> getline('.') =~ ':$' ? "\r\t☐ " : getline('.') =~ '\v^\s*%(✘\|✔\|☐)' ? "\r☐  " : "\r"
 
 inoreabbrev <buffer> ,l @low
 inoreabbrev <buffer> ,h @high
