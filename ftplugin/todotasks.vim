@@ -4,22 +4,47 @@
 
 runtime! syntax/markdown.vim
 
-set shiftwidth=2 tabstop=2 softtabstop=2 expandtab
+setlocal shiftwidth=2 tabstop=2 softtabstop=2 expandtab
 
-set commentstring=;%s
+setlocal commentstring=/*%s*/
+setlocal fdm=syntax
+setlocal foldtext=substitute(getline(v:foldstart),'^/\\*','','')
 
+xnoremap <buffer> gc <esc>`<I/*<esc>`>A*/<esc>
 inoremap <buffer> <C-\><C-\> ☐<space><space>
 nnoremap <buffer> ,n         o☐<space><space>
 nnoremap <buffer> ,w         :call <SID>task_due()<cr>
 nnoremap <buffer> ,d         :call <SID>toggle_task_done()<CR>
 nnoremap <buffer> ,c         :call <SID>toggle_task_canceled()<CR>
-nnoremap <buffer><expr> o    getline('.') =~ ':$' ? "o\t☐ " : getline('.') =~ '\v^\s*%(✘\|✔\|☐)' ? 'o☐  ' : 'o'
-inoremap <buffer><expr> <cr> getline('.') =~ ':$' ? "\r\t☐ " : getline('.') =~ '\v^\s*%(✘\|✔\|☐)' ? "\r☐  " : "\r"
+nnoremap <buffer> ,a         :call <SID>archive()<CR>
+nnoremap <buffer><expr> o    getline('.') =~ ':$' ? "o\t☐  " : getline('.') =~ '\v^\s*%(✘\|✔\|☐)' ? 'o☐  ' : 'o'
+inoremap <buffer><expr> <cr> getline('.') =~ ':$' ? "\r\t☐  " : getline('.') =~ '\v^\s*%(✘\|✔\|☐)' ? "\r☐  " : "\r"
 
 inoreabbrev <buffer> ,l @low
 inoreabbrev <buffer> ,h @high
 inoreabbrev <buffer> ,c @critical
 inoreabbrev <buffer> ,m @medium
+
+""
+" Archive
+""
+fun! s:archive()
+    d
+    let pos = getcurpos()
+    if search('^/\* ARCHIVED')
+        $
+        -1put
+        s/\s\+\(due\|done\|canceled\):.*/\='    archived: '.strftime('%Y-%m-%d %H:%M')/
+    else
+        $
+        put =''
+        put ='/* ARCHIVED'
+        put
+        s/\s\+\(due\|done\|canceled\):.*/\='    archived: '.strftime('%Y-%m-%d %H:%M')/
+        put ='*/'
+    endif
+    call setpos('.', pos)
+endfun
 
 ""
 " Add the 'due' tag
