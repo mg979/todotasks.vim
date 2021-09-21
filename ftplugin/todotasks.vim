@@ -6,11 +6,12 @@ runtime! syntax/markdown.vim
 
 setlocal shiftwidth=2 tabstop=2 softtabstop=2 expandtab
 
-setlocal commentstring=/*%s*/
+setlocal commentstring=---%s---
 setlocal fdm=syntax
-setlocal foldtext=substitute(getline(v:foldstart),'^/\\*','','')
+setlocal foldtext=substitute(getline(v:foldstart),'^'.split(&commentstring,'%s')[0],'','')
 
-xnoremap <buffer> gc <esc>`<I/*<esc>`>A*/<esc>
+nnoremap <buffer> gq         :update<bar>bdelete<cr>
+xnoremap <buffer> gc         <esc>`<I/*<esc>`>A*/<esc>
 inoremap <buffer> <C-\><C-\> ☐<space><space>
 nnoremap <buffer> ,n         o☐<space><space>
 nnoremap <buffer> ,w         :call <SID>task_due()<cr>
@@ -29,19 +30,37 @@ inoreabbrev <buffer> ,m @medium
 " Archive
 ""
 fun! s:archive()
-    d
+    if getline('.') !~ '^\s*[✔☐✘]'
+        echo 'Not a task'
+        return
+    endif
+    set nofoldenable
     let pos = getcurpos()
-    if search('^/\* ARCHIVED')
-        $
-        -1put
-        s/\s\+\(due\|done\|canceled\):.*/\='    archived: '.strftime('%Y-%m-%d %H:%M')/
+    let c = split(&commentstring, '%s')
+    let a = search('^'. c[0] .' ARCHIVED')
+    if a && a > pos[1]
+        exe pos[1] . 'd'
+        $put
+        try
+            s/\s\+\(due\|done\|canceled\):.*/\='  archived: '.strftime('%Y-%m-%d %H:%M')/
+        catch
+            $put ='  archived: '.strftime('%Y-%m-%d %H:%M')
+            normal! kgJ
+        endtry
+    elseif a
+        echo 'Task is already archived'
     else
+        exe pos[1] . 'd'
         $
         put =''
-        put ='/* ARCHIVED'
+        put =c[0] .' ARCHIVED'
         put
-        s/\s\+\(due\|done\|canceled\):.*/\='    archived: '.strftime('%Y-%m-%d %H:%M')/
-        put ='*/'
+        try
+            s/\s\+\(due\|done\|canceled\):.*/\='  archived: '.strftime('%Y-%m-%d %H:%M')/
+        catch
+            $put ='  archived: '.strftime('%Y-%m-%d %H:%M')
+            normal! kgJ
+        endtry
     endif
     call setpos('.', pos)
 endfun

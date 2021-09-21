@@ -19,7 +19,9 @@ syn match  TaskCritical      '@critical\>'
 syn match  TaskHigh          '@high\>'
 syn match  TaskMedium        '@medium\>'
 syn match  TaskLow           '@low\>'
-syn region TaskComment       start=/^\/\*/ end=/\*\// fold contains=TaskArchived
+
+let s:cs = map(split(&commentstring, '%s'), 'escape(v:val, "\\")')
+exe 'syn region TaskComment start=/\V'. s:cs[0] .'/ end=/\V'. s:cs[1] .'/ fold contains=TaskArchived'
 
 hi default link TaskGroup          Title
 hi default link TaskTodo           Constant
@@ -34,7 +36,24 @@ hi default link TaskDoneText       PreProc
 hi default link TaskArchivedText   PreProc
 hi default link TaskCanceledText   Comment
 hi default link TaskComment        Comment
-hi default TaskCritical ctermbg=9 ctermfg=15 guibg=Red guifg=White
-hi default TaskHigh     ctermbg=13 ctermfg=15 guibg=Magenta guifg=White
-hi default TaskMedium   ctermbg=11 ctermfg=0 guibg=Yellow guifg=Black
-hi default TaskLow      ctermbg=10 ctermfg=15 guibg=Green guifg=White
+
+fun! s:hi()
+    if &bg == 'dark'
+        hi default TaskCritical ctermbg=235 ctermfg=131 cterm=reverse guibg=#262626 guifg=#af5f5f gui=reverse
+        hi default TaskHigh     ctermbg=235 ctermfg=208 cterm=reverse guibg=#262626 guifg=#ff8700 gui=reverse
+        hi default TaskMedium   ctermbg=235 ctermfg=103 cterm=reverse guibg=#262626 guifg=#8787af gui=reverse
+        hi default TaskLow      ctermbg=235 ctermfg=108 cterm=reverse guibg=#262626 guifg=#87af87 gui=reverse
+    else
+        hi default TaskCritical ctermbg=235 ctermfg=131 cterm=reverse guibg=#e0e0e0 guifg=#A63C93 gui=reverse
+        hi default TaskHigh     ctermbg=235 ctermfg=208 cterm=reverse guibg=#e0e0e0 guifg=#CE3E42 gui=reverse
+        hi default TaskMedium   ctermbg=235 ctermfg=103 cterm=reverse guibg=#e0e0e0 guifg=#8787af gui=reverse
+        hi default TaskLow      ctermbg=235 ctermfg=108 cterm=reverse guibg=#e0e0e0 guifg=#87af87 gui=reverse
+    endif
+endfun
+
+call s:hi()
+
+augroup taskstodohi
+    au!
+    au ColorScheme * call s:hi()
+augroup END
