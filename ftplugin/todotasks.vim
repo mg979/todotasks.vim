@@ -18,6 +18,7 @@ nnoremap <buffer> ,d         :call <SID>toggle_task_done()<CR>
 nnoremap <buffer> ,c         :call <SID>toggle_task_canceled()<CR>
 nnoremap <buffer> ,a         :call <SID>archive()<CR>
 nnoremap <buffer> ,A         :call <SID>align()<cr>
+nnoremap <buffer> K          :call <SID>notes()<cr>
 
 nnoremap <buffer><expr> o    getline('.') =~ ':$' ? "o\t☐  " : getline('.') =~ '\v^\s*%(✘\|✔\|☐)' ? 'o☐  ' : 'o'
 inoremap <buffer><expr> <cr> getline('.') =~ ':$' ? "\r\t☐  " : getline('.') =~ '\v^\s*%(✘\|✔\|☐)' ? "\r☐  " : "\r"
@@ -68,6 +69,25 @@ fun! s:archive()
     endif
     call setpos('.', pos)
 endfun
+
+""
+" Add notes to topic
+""
+fun! s:notes()
+    let l = getline(".")
+    let l = substitute(l, s:tags . '.*', '', '')
+    let topic = matchstr(l, '^.\{-}\zs\w.*')
+    drop .notes
+    if line('$') == 1 && empty(getline(1))
+        -put='# NOTES: '.fnamemodify(getcwd(), ':p:h:t')
+    endif
+    setfiletype markdown
+    if !search(topic)
+        silent $put=['', repeat('-', &tw), '', '## ' . topic, '', '']
+        startinsert
+    endif
+endfun
+
 
 ""
 " Add the 'due' tag
