@@ -2,8 +2,6 @@
 " tasks
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-runtime! syntax/markdown.vim
-
 setlocal shiftwidth=2 tabstop=2 softtabstop=2 expandtab
 
 setlocal commentstring=---%s---
@@ -11,15 +9,21 @@ setlocal fdm=syntax
 setlocal foldtext=substitute(getline(v:foldstart),'^'.split(&commentstring,'%s')[0],'','')
 
 nnoremap <buffer> gq         :update<bar>bdelete<cr>
-xnoremap <buffer> gc         <esc>`<I/*<esc>`>A*/<esc>
+
 inoremap <buffer> <C-\><C-\> ☐<space><space>
+
 nnoremap <buffer> ,n         o☐<space><space>
 nnoremap <buffer> ,w         :call <SID>task_due()<cr>
 nnoremap <buffer> ,d         :call <SID>toggle_task_done()<CR>
 nnoremap <buffer> ,c         :call <SID>toggle_task_canceled()<CR>
 nnoremap <buffer> ,a         :call <SID>archive()<CR>
+nnoremap <buffer> ,A         :call <SID>align()<cr>
+
 nnoremap <buffer><expr> o    getline('.') =~ ':$' ? "o\t☐  " : getline('.') =~ '\v^\s*%(✘\|✔\|☐)' ? 'o☐  ' : 'o'
 inoremap <buffer><expr> <cr> getline('.') =~ ':$' ? "\r\t☐  " : getline('.') =~ '\v^\s*%(✘\|✔\|☐)' ? "\r☐  " : "\r"
+
+xnoremap <buffer><nowait> gc <esc>`>:put='---'<cr>`<:-put='---'<cr>A<space>
+nnoremap <buffer><nowait> gco :set nofoldenable<cr>:put='---'<cr>:put='---'<cr>kA<space>
 
 inoreabbrev <buffer> ,l @low
 inoreabbrev <buffer> ,h @high
@@ -135,4 +139,25 @@ fun! s:toggle_task_canceled() abort
     elseif getline('.') =~ '^\s*✘.*canceled:'
         s/✘\(.\{-}\)\s\+canceled:.*/☐\1/
     endif
+endfun
+
+""
+" Align tasks tags
+""
+let s:tags = '\v\s*(due:|done:|canceled:|archived:|\@critical|\@high|\@medium|\@low)'
+
+fun! s:align()
+    let s:max = max(map(getline(1, '$'), 'match(v:val, s:tags)'))
+    let txt = map(getline(1, '$'), 'substitute(v:val,
+                \                              "\\s\\+\\ze". s:tags,
+                \                              s:width(v:key + 1), "")')
+    %d_
+    -put=txt
+    $d_
+endfun
+
+fun! s:width(line)
+    let l = getline(a:line)
+    let m = match(l, s:tags)
+    return repeat(' ', s:max - m) . '   '
 endfun
