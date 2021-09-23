@@ -12,13 +12,15 @@ nnoremap <buffer> gq         :update<bar>bdelete<cr>
 
 inoremap <buffer> <C-\><C-\> ☐<space><space>
 
-nnoremap <buffer> ,n         o☐<space><space>
-nnoremap <buffer> ,w         :call <SID>task_due()<cr>
-nnoremap <buffer> ,d         :call <SID>toggle_task_done()<CR>
-nnoremap <buffer> ,c         :call <SID>toggle_task_canceled()<CR>
-nnoremap <buffer> ,a         :call <SID>archive()<CR>
-nnoremap <buffer> ,A         :call <SID>align()<cr>
-nnoremap <buffer> K          :call <SID>notes()<cr>
+nnoremap <buffer><nowait>           ,n    o☐<space><space>
+nnoremap <silent><buffer><nowait>   ,t    :call <SID>task_due()<cr>
+nnoremap <silent><buffer><nowait>   ,d    :call <SID>toggle_task_done()<CR>
+nnoremap <silent><buffer><nowait>   ,c    :call <SID>toggle_task_canceled()<CR>
+nnoremap <silent><buffer><nowait>   ,a    :call <SID>archive()<CR>
+nnoremap <silent><buffer><nowait>   ,A    :call <SID>align()<cr>
+nnoremap <silent><buffer><nowait>   ,u    :call <SID>remove_tags()<cr>
+nnoremap <silent><buffer><nowait>   ,U    :call <SID>remove_tags()<cr>:call <SID>align()<cr>
+nnoremap <silent><buffer><nowait>   K     :call <SID>notes()<cr>
 
 nnoremap <buffer><expr> o    getline('.') =~ ':$' ? "o\t☐  " : getline('.') =~ '\v^\s*%(✘\|✔\|☐)' ? 'o☐  ' : 'o'
 inoremap <buffer><expr> <cr> getline('.') =~ ':$' ? "\r\t☐  " : getline('.') =~ '\v^\s*%(✘\|✔\|☐)' ? "\r☐  " : "\r"
@@ -86,6 +88,14 @@ fun! s:notes()
         silent $put=['', repeat('-', &tw), '', '## ' . topic, '', '']
         startinsert
     endif
+endfun
+
+""
+" Clear tags
+""
+fun! s:remove_tags()
+    keeppatterns s/@\v(low|medium|high|critical)\s*//g
+    keeppatterns s/\s\+$//e
 endfun
 
 
