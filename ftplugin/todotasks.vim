@@ -47,7 +47,7 @@ fun! s:archive()
         exe pos[1] . 'd'
         $put
         try
-            s/\s\+\(due\|done\|canceled\):.*/\='  archived: '.strftime('%Y-%m-%d %H:%M')/
+            keeppatterns s/\s\+\(due\|done\|canceled\):.*/\='  archived: '.strftime('%Y-%m-%d %H:%M')/
         catch
             $put ='  archived: '.strftime('%Y-%m-%d %H:%M')
             normal! kgJ
@@ -61,7 +61,7 @@ fun! s:archive()
         put =c[0] .' ARCHIVED'
         put
         try
-            s/\s\+\(due\|done\|canceled\):.*/\='  archived: '.strftime('%Y-%m-%d %H:%M')/
+            keeppatterns s/\s\+\(due\|done\|canceled\):.*/\='  archived: '.strftime('%Y-%m-%d %H:%M')/
         catch
             $put ='  archived: '.strftime('%Y-%m-%d %H:%M')
             normal! kgJ
@@ -119,7 +119,7 @@ fun! s:task_due() abort
     silent! s/\s*due:.*//
     if days =~ '\.\|/'
         let h = (hours - 1) * 60 * 60 + minutes * 60
-        s/\(.*\)/\=submatch(1).'    due: '.days.' '.strftime('%H:%M', h)/
+        keeppatterns s/\(.*\)/\=submatch(1).'    due: '.days.' '.strftime('%H:%M', h)/
     else
         let h = hours * 60 * 60 + minutes * 60
         let _h = strftime('%H') * 60 * 60
@@ -127,7 +127,7 @@ fun! s:task_due() abort
         let today = localtime() - _h - _m
         let d = days * 24 * 60 * 60
         let time = today + d + h
-        s/\(.*\)/\=submatch(1).'    due: '.strftime('%Y-%m-%d %H:%M', time)/
+        keeppatterns s/\(.*\)/\=submatch(1).'    due: '.strftime('%Y-%m-%d %H:%M', time)/
     endif
 endfun
 
@@ -136,13 +136,13 @@ endfun
 ""
 fun! s:toggle_task_done() abort
     if getline('.') =~ '^\s*☐.*due:'
-        s/☐\(.\{-}\)\%(\s\+due:.*\)/\='✔'.submatch(1).'    done: '.strftime('%Y-%m-%d %H:%M')/
+        keeppatterns s/☐\(.\{-}\)\%(\s\+due:.*\)/\='✔'.submatch(1).'    done: '.strftime('%Y-%m-%d %H:%M')/
     elseif getline('.') =~ '^\s*☐'
-        s/☐\(.*\)/\='✔'.submatch(1).'    done: '.strftime('%Y-%m-%d %H:%M')/
+        keeppatterns s/☐\(.*\)/\='✔'.submatch(1).'    done: '.strftime('%Y-%m-%d %H:%M')/
     elseif getline('.') =~ '^\s*✘'
-        s/✘\(.\{-}\)\%(\s\+canceled:.*\)/\='✔'.submatch(1).'    done: '.strftime('%Y-%m-%d %H:%M')/
+        keeppatterns s/✘\(.\{-}\)\%(\s\+canceled:.*\)/\='✔'.submatch(1).'    done: '.strftime('%Y-%m-%d %H:%M')/
     elseif getline('.') =~ '^\s*✔.*done:'
-        s/✔\(.\{-}\)\s\+done:.*/☐\1/
+        keeppatterns s/✔\(.\{-}\)\s\+done:.*/☐\1/
     endif
 endfun
 
@@ -151,13 +151,13 @@ endfun
 ""
 fun! s:toggle_task_canceled() abort
     if getline('.') =~ '^\s*☐.*due:'
-        s/☐\(.\{-}\)\%(\s\+due:.*\)/\='✘'.submatch(1).'    canceled: '.strftime('%Y-%m-%d %H:%M')/
+        keeppatterns s/☐\(.\{-}\)\%(\s\+due:.*\)/\='✘'.submatch(1).'    canceled: '.strftime('%Y-%m-%d %H:%M')/
     elseif getline('.') =~ '^\s*☐'
-        s/☐\(.*\)/\='✘'.submatch(1).'    canceled: '.strftime('%Y-%m-%d %H:%M')/
+        keeppatterns s/☐\(.*\)/\='✘'.submatch(1).'    canceled: '.strftime('%Y-%m-%d %H:%M')/
     elseif getline('.') =~ '^\s*✔'
-        s/✔\(.\{-}\)\%(\s\+done:.*\)/\='✘'.submatch(1).'    canceled: '.strftime('%Y-%m-%d %H:%M')/
+        keeppatterns s/✔\(.\{-}\)\%(\s\+done:.*\)/\='✘'.submatch(1).'    canceled: '.strftime('%Y-%m-%d %H:%M')/
     elseif getline('.') =~ '^\s*✘.*canceled:'
-        s/✘\(.\{-}\)\s\+canceled:.*/☐\1/
+        keeppatterns s/✘\(.\{-}\)\s\+canceled:.*/☐\1/
     endif
 endfun
 
