@@ -5,7 +5,7 @@
 setlocal shiftwidth=2 tabstop=2 softtabstop=2 expandtab
 
 setlocal commentstring=---%s---
-setlocal fdm=syntax
+setlocal fdm=syntax foldenable
 setlocal foldtext=substitute(getline(v:foldstart),'^'.split(&commentstring,'%s')[0],'','')
 
 nnoremap <buffer> gq         :update<bar>bdelete<cr>
@@ -20,7 +20,8 @@ nnoremap <silent><buffer><nowait>   ,a    :call <SID>archive()<CR>
 nnoremap <silent><buffer><nowait>   ,A    :call <SID>align()<cr>
 nnoremap <silent><buffer><nowait>   ,u    :call <SID>remove_tags()<cr>
 nnoremap <silent><buffer><nowait>   ,U    :call <SID>remove_tags()<cr>:call <SID>align()<cr>
-nnoremap <silent><buffer><nowait>   K     :call <SID>notes()<cr>
+nnoremap <silent><buffer><nowait>   K     :call <SID>notes(0)<cr>
+nnoremap <silent><buffer><nowait>   gK    :call <SID>notes(1)<cr>
 
 nnoremap <buffer><expr> o    getline('.') =~ ':$' ? "o\t☐  " : getline('.') =~ '\v^\s*%(✘\|✔\|☐)' ? 'o☐  ' : 'o'
 inoremap <buffer><expr> <cr> getline('.') =~ ':$' ? "\r\t☐  " : getline('.') =~ '\v^\s*%(✘\|✔\|☐)' ? "\r☐  " : "\r"
@@ -32,6 +33,12 @@ inoreabbrev <buffer> ,l @low
 inoreabbrev <buffer> ,h @high
 inoreabbrev <buffer> ,c @critical
 inoreabbrev <buffer> ,m @medium
+
+if line('$') > winheight(0) &&
+            \ (!search('ARCHIVED', 'n') || search('ARCHIVED', 'n') > winheight(0))
+    wincmd H
+    80wincmd |
+endif
 
 ""
 " Archive
@@ -54,6 +61,7 @@ fun! s:archive()
             $put ='  archived: '.strftime('%Y-%m-%d %H:%M')
             normal! kgJ
         endtry
+        call s:remove_tags()
     elseif a
         echo 'Task is already archived'
     else
@@ -68,6 +76,7 @@ fun! s:archive()
             $put ='  archived: '.strftime('%Y-%m-%d %H:%M')
             normal! kgJ
         endtry
+        call s:remove_tags()
     endif
     call setpos('.', pos)
 endfun
@@ -75,15 +84,29 @@ endfun
 ""
 " Add notes to topic
 ""
-fun! s:notes()
+fun! s:notes(notopic)
+    for b in tabpagebuflist()
+        if bufname(b) == '.todonotes'
+            let cmd = 'drop'
+            break
+        endif
+    endfor
     let l = getline(".")
     let l = substitute(l, s:tags . '.*', '', '')
-    let topic = matchstr(l, '^.\{-}\zs\w.*')
-    drop .notes
+    let cmd = winheight(0) > &lines / 2 ? 'split' : 'vsplit'
+    exe cmd '.todonotes'
     if line('$') == 1 && empty(getline(1))
         -put='# NOTES: '.fnamemodify(getcwd(), ':p:h:t')
+        $
+        if a:notopic
+            startinsert
+        endif
     endif
     setfiletype markdown
+    if a:notopic
+        return
+    endif
+    let topic = matchstr(l, '^.\{-}\zs\w.*')
     if !search(topic)
         silent $put=['', repeat('-', &tw), '', '## ' . topic, '', '']
         startinsert
@@ -94,7 +117,7 @@ endfun
 " Clear tags
 ""
 fun! s:remove_tags()
-    keeppatterns s/@\v(low|medium|high|critical)\s*//g
+    keeppatterns s/@\v(low|medium|high|critical)\s*//ge
     keeppatterns s/\s\+$//e
 endfun
 
@@ -177,6 +200,7 @@ endfun
 let s:tags = '\v\s*(due:|done:|canceled:|archived:|\@critical|\@high|\@medium|\@low)'
 
 fun! s:align()
+    set nofoldenable
     let s:max = max(map(getline(1, '$'), 'match(v:val, s:tags)'))
     let txt = map(getline(1, '$'), 'substitute(v:val,
                 \                              "\\s\\+\\ze". s:tags,
