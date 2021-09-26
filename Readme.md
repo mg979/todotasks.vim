@@ -6,12 +6,15 @@ All tasks must stay in a line, so it's not for verbose lists. If you need to
 add details, you can press `K` on a task and it will open a new file
 `.todonotes`, where you can write what you want.
 
-Options:
+---
+
+#### Options:
 
 `g:todotasks_pattern`: default is `.todo`
 
+---
 
-Normal mode mappings:
+#### Normal mode mappings:
 
 |||
 |----------|----------|
@@ -28,8 +31,9 @@ Normal mode mappings:
 |gK        | just open .todonotes  |
 |gco       | add a comment section |
 
+---
 
-Insert mode abbreviations:
+#### Insert mode abbreviations:
 
 |||
 |----------|----------|
@@ -38,6 +42,8 @@ Insert mode abbreviations:
 | ,c       | @critical priority tag  |
 | ,m       | @medium priority tag    |
 
+---
 
 An example:
 
+![todotasks](https://user-images.githubusercontent.com/26169924/134794561-3f79d68e-bf80-4d0c-b755-2383fabba533.png)
