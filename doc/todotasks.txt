@@ -7,9 +7,12 @@ All tasks must stay in a line, so it's not for verbose lists. If you need to
 add details, you can press `K` on a task and it will open a new file
 `.todonotes`, where you can write what you want.
 
-Options:
+																													*g:todotasks_pattern*
+Usage:
 
-    *g:todotasks_pattern*   default is `.todo`
+		Create a file with the extension `.todo`, or define a new file pattern:
+>
+		let g:todotasks_pattern = '*.TODO,TODO,*.todo'
 
 
 Normal mode mappings:

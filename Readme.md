@@ -8,9 +8,12 @@ add details, you can press `K` on a task and it will open a new file
 
 ---
 
-#### Options:
+#### Usage:
 
-`g:todotasks_pattern`: default is `.todo`
+Create a file with the extension `.todo`, or define a new file pattern:
+
+    let g:todotasks_pattern = '*.TODO,TODO,*.todo'
+
 
 ---
 
