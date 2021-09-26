@@ -46,4 +46,4 @@ add details, you can press `K` on a task and it will open a new file
 
 An example:
 
-![todotasks](https://user-images.githubusercontent.com/26169924/134794561-3f79d68e-bf80-4d0c-b755-2383fabba533.png)
+![todotasks](https://user-images.githubusercontent.com/26169924/134794651-abbc9804-2fef-46d5-85f0-f6bf46551d92.png)
